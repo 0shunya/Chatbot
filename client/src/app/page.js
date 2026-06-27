@@ -1,11 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadMessages() {
+      const response = await fetch("http://localhost:5000/api/messages");
+      const data = await response.json()
+
+      const formattedMessages = data.flatMap((item) => [
+        {
+          sender: "user",
+          text: item.userMessage,
+        },
+        {
+          sender: "bot",
+          text: item.botAnswer,
+        },
+      ]);;
+
+      setMessages(formattedMessages);
+    }
+    loadMessages();
+
+  }, []);
 
   async function sendMessage(event) {
     event.preventDefault();
