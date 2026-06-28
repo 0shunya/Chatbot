@@ -13,6 +13,39 @@ app.get("/", (req, res) => {
     res.json({ message: "Chatbot server is running!" });
 })
 
+const knowledgeBase = [
+  {
+    topic: "wealth",
+    keywords: ["wealth", "money", "rich", "startup", "business"],
+    answer:
+      "Naval often talks about wealth as something you build through ownership, leverage, specific knowledge, and long-term thinking. The idea is not just to trade time for money, but to build assets that can work while you sleep.",
+  },
+  {
+    topic: "leverage",
+    keywords: ["leverage", "code", "media", "internet", "scale"],
+    answer:
+      "A Naval-inspired view of leverage is: use tools like code, media, capital, and people to multiply your effort. Code and media are especially powerful because they can work for you even when you are not actively working.",
+  },
+  {
+    topic: "happiness",
+    keywords: ["happy", "happiness", "peace", "anxiety", "mind"],
+    answer:
+      "A Naval-inspired answer: happiness is not about getting every external thing you want. It is often about reducing desire, observing your thoughts, and finding peace in the present.",
+  },
+  {
+    topic: "specific knowledge",
+    keywords: ["specific knowledge", "skill", "career", "learn"],
+    answer:
+      "Specific knowledge is knowledge that feels natural to you, is hard for others to copy, and is built through curiosity, obsession, and experience. It is usually not something you learn only from school.",
+  },
+  {
+    topic: "long term",
+    keywords: ["long term", "patience", "compound", "relationship"],
+    answer:
+      "A Naval-style principle: play long-term games with long-term people. Compounding works in money, knowledge, reputation, and relationships.",
+  },
+];
+
 const intents = [
   {
     name: "greeting",
@@ -58,9 +91,17 @@ function getBotReply(message) {
     //     return "Goodbye! Talk to you later."
     // }
 
+    const matchedKnowlege = knowledgeBase.find((knowledge) => {
+      return knowledge.keywords.some((keywords) => text.includes(keywords));
+    });
+
     const matchedIntent = intents.find((intent) => {
         return intent.keywords.some((keywords) => text.includes(keywords));
     });
+
+    if(matchedKnowlege) {
+      return matchedKnowlege.answer;
+    }
 
     if(matchedIntent){
         return matchedIntent.answer;
