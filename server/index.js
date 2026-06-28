@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const Message = require("./models/Message.js");
+const Knowledge = require("./models/Knowledge.js");
 
 const app = express();
 
@@ -74,7 +75,7 @@ const intents = [
   },
 ];
 
-function getBotReply(message) {
+async function getBotReply(message) {
     const text = message.toLowerCase().trim()
 
     // if(text.includes("hello") || text.includes("hi")) {
@@ -91,16 +92,25 @@ function getBotReply(message) {
     //     return "Goodbye! Talk to you later."
     // }
 
-    const matchedKnowlege = knowledgeBase.find((knowledge) => {
-      return knowledge.keywords.some((keywords) => text.includes(keywords));
+    const knowledgeItems = await Knowledge.find()
+
+    const matchedKnowlege = knowledgeItems.find((item) => {
+
+      const topicMatch = text.includes(item.topic.toLowerCase());
+
+      const keywordMatch = item.keywords.some((keyword) => text.includes(keyword.toLowerCase()));
+
+      const contentMatch = item.text.toLowerCase().includes(text);
+
+      return topicMatch || keywordMatch || contentMatch;
     });
 
     const matchedIntent = intents.find((intent) => {
-        return intent.keywords.some((keywords) => text.includes(keywords));
+        return intent.keywords.some((keyword) => text.includes(keyword));
     });
 
     if(matchedKnowlege) {
-      return matchedKnowlege.answer;
+      return matchedKnowlege.text;
     }
 
     if(matchedIntent){
@@ -119,7 +129,7 @@ app.post("/api/chat", async (req, res) => {
         });
     }
 
-    const botAnswer = getBotReply(userMessage);
+    const botAnswer = await getBotReply(userMessage);
 
     await Message.create({
         userMessage: userMessage,

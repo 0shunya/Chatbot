@@ -1,23 +1,32 @@
 const mongoose = require("mongoose");
 
 const knowledgeSchema = new mongoose.Schema(
-    {
-        topic: {
-            type: String,
-            required: true,
-        },
-        keyword: {
-            type: String,
-            required: true,
-        },
-        answer: {
-            type: String,
-            required: true,
-        }
+  {
+    externalId: {
+      type: String,
+      required: true,
+      unique: true,
     },
-        {
-            timestamps: true
-        }
+    text: {
+      type: String,
+      required: true,
+    },
+    source: {
+      type: String,
+      default: "unknown",
+    },
+    topic: {
+      type: String,
+      default: "general",
+    },
+    keywords: {
+      type: [String],
+      default: [],
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("Knowledge", knowledgeSchema);
