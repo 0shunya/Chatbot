@@ -78,40 +78,55 @@ const intents = [
 async function getBotReply(message) {
     const text = message.toLowerCase().trim()
 
-    // if(text.includes("hello") || text.includes("hi")) {
-    //     return "Hello How can I help you";
-    // }
-
-    // if(text.includes("how are you")) {
-    //     return "I am doing good! Thanks for asking"
-    // }
-    // if(text.includes("whats your name?")) {
-    //     return "I am Mini Bot, built with node js and React"
-    // }
-    // if(text.includes("bubbye")) {
-    //     return "Goodbye! Talk to you later."
-    // }
+    const words = text.split(" ");
 
     const knowledgeItems = await Knowledge.find()
 
-    const matchedKnowlege = knowledgeItems.find((item) => {
+    // const matchedKnowlege = knowledgeItems.find((item) => {
 
-      const topicMatch = text.includes(item.topic.toLowerCase());
+    //   const topicMatch = text.includes(item.topic.toLowerCase());
 
-      const keywordMatch = item.keywords.some((keyword) => text.includes(keyword.toLowerCase()));
+    //   const keywordMatch = item.keywords.some((keyword) => text.includes(keyword.toLowerCase()));
 
-      const contentMatch = item.text.toLowerCase().includes(text);
+    //   const contentMatch = item.text.toLowerCase().includes(text);
 
-      return topicMatch || keywordMatch || contentMatch;
-    });
+    //   return topicMatch || keywordMatch || contentMatch;
+    // });
+
+const scoredKnowledge = knowledgeItems.map((item) => {
+  let score = 0;
+
+  if (text.includes(item.topic.toLowerCase())) {
+    score += 3;
+  }
+
+  item.keywords.forEach((keyword) => {
+    if (text.includes(keyword.toLowerCase())) {
+      score += 2;
+    }
+  });
+
+  words.forEach((word) => {
+    if (word.length > 3 && item.text.toLowerCase().includes(word)) {
+      score += 1;
+    }
+  });
+
+  return {
+    item,
+    score,
+  };
+});
+
+const bestMatch = scoredKnowledge.sort((a, b) => b.score - a.score)[0];
 
     const matchedIntent = intents.find((intent) => {
         return intent.keywords.some((keyword) => text.includes(keyword));
     });
 
-    if(matchedKnowlege) {
-      return matchedKnowlege.text;
-    }
+if (bestMatch && bestMatch.score > 0) {
+  return bestMatch.item.text;
+}
 
     if(matchedIntent){
         return matchedIntent.answer;
