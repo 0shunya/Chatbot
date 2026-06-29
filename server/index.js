@@ -112,7 +112,11 @@ const scoredKnowledge = knowledgeItems.map((item) => {
     }
   });
 
-
+  return {
+    item,
+    score,
+  };
+});
 
 const bestMatch = scoredKnowledge.sort((a, b) => b.score - a.score)[0];
 
